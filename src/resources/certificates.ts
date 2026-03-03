@@ -1,15 +1,24 @@
 import type { HttpClient } from "../http-client.js";
-import type { Certificate } from "../types.js";
+import type { Certificate, UploadCertificateRequest, UploadP12Request } from "../types.js";
 
 export class Certificates {
   constructor(private http: HttpClient) {}
 
-  /** Upload a certificate. Pass a FormData with `file` and `cert_type` fields. */
-  async upload(formData: FormData): Promise<Certificate> {
+  /** Upload a certificate as base64-encoded JSON. */
+  async upload(params: UploadCertificateRequest): Promise<Certificate> {
     return this.http.request<Certificate>({
       method: "POST",
       path: "/manage-certs",
-      body: formData,
+      body: params,
+    });
+  }
+
+  /** Upload a P12 certificate bundle. Returns extracted certificates. */
+  async uploadP12(params: UploadP12Request): Promise<Certificate[]> {
+    return this.http.request<Certificate[]>({
+      method: "POST",
+      path: "/manage-certs/p12",
+      body: params,
     });
   }
 

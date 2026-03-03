@@ -55,7 +55,7 @@ export class Passes {
     return res.body;
   }
 
-  /** Update a pass (data, expires_at). Triggers push notification to registered devices. */
+  /** Update a pass. Optionally triggers push notification to registered devices. */
   async update(passId: string, params: UpdatePassRequest): Promise<UpdatePassResponse> {
     return this.http.request<UpdatePassResponse>({
       method: "PATCH",
@@ -64,11 +64,11 @@ export class Passes {
     });
   }
 
-  /** Void a pass. Triggers push notification to registered devices. */
+  /** Void (invalidate) a pass. Triggers push notification to registered devices. */
   async void(passId: string): Promise<VoidPassResponse> {
     return this.http.request<VoidPassResponse>({
-      method: "DELETE",
-      path: `/manage-passes/${passId}`,
+      method: "POST",
+      path: `/manage-passes/${passId}/void`,
     });
   }
 }

@@ -7,7 +7,7 @@ export type PassStyle =
   | "boardingPass"
   | "storeCard";
 
-export type PassStatus = "active" | "voided" | "expired";
+export type PassStatus = "active" | "invalidated" | "expired";
 
 export type CertType = "signer_cert" | "signer_key" | "wwdr";
 
@@ -48,6 +48,7 @@ export interface Template {
   organization_id: string;
   app_id: string;
   name: string;
+  description: string | null;
   pass_style: PassStyle;
   structure: Record<string, unknown>;
   field_schema: Record<string, unknown> | null;
@@ -60,7 +61,7 @@ export interface Image {
   id: string;
   organization_id: string;
   app_id: string;
-  image_type: string;
+  purpose: string;
   filename: string;
   storage_path: string;
   content_type: string;
@@ -85,6 +86,8 @@ export interface Certificate {
 export interface Organization {
   id: string;
   name: string;
+  slug: string | null;
+  apns_key_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -95,8 +98,9 @@ export interface App {
   name: string;
   apple_team_id: string | null;
   pass_type_identifier: string | null;
+  is_active: boolean;
   validation_webhook_url: string | null;
-  event_webhook_url: string | null;
+  webhook_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -107,7 +111,6 @@ export interface ApiKey {
   name: string;
   key_type: KeyType;
   prefix: string;
-  scopes: string[];
   last_used_at: string | null;
   created_at: string;
 }
@@ -128,6 +131,7 @@ export interface Invitation {
   email: string;
   role: OrgRole;
   status: "pending" | "accepted" | "expired";
+  accept_url?: string;
   expires_at: string;
   created_at: string;
 }
@@ -163,24 +167,34 @@ export interface ListPassesParams {
   serial_number?: string;
   external_id?: string;
   template_id?: string;
+  created_after?: string;
+  created_before?: string;
   limit?: number;
   offset?: number;
 }
 
 export interface UpdatePassRequest {
-  data?: Record<string, unknown>;
-  expires_at?: string | null;
+  data: Record<string, unknown>;
+  push_update?: boolean;
 }
 
 export interface CreateTemplateRequest {
   name: string;
   pass_style: PassStyle;
   structure: Record<string, unknown>;
+  description?: string;
   field_schema?: Record<string, unknown>;
+  icon_image_id?: string;
+  logo_image_id?: string;
+  strip_image_id?: string;
+  thumbnail_image_id?: string;
+  background_image_id?: string;
 }
 
 export interface UpdateTemplateRequest {
   name?: string;
+  description?: string;
+  pass_style?: PassStyle;
   structure?: Record<string, unknown>;
   field_schema?: Record<string, unknown>;
 }
@@ -188,7 +202,6 @@ export interface UpdateTemplateRequest {
 export interface CreateApiKeyRequest {
   name: string;
   key_type: KeyType;
-  scopes?: string[];
 }
 
 export interface InviteMemberRequest {
@@ -208,9 +221,7 @@ export interface ListWebhookEventsParams {
 }
 
 export interface CreateAppRequest {
-  name: string;
-  apple_team_id?: string;
-  pass_type_identifier?: string;
+  name?: string;
 }
 
 export interface UpdateAppRequest {
@@ -218,12 +229,35 @@ export interface UpdateAppRequest {
   apple_team_id?: string;
   pass_type_identifier?: string;
   validation_webhook_url?: string | null;
-  event_webhook_url?: string | null;
+  webhook_url?: string | null;
   regenerate_webhook_secret?: boolean;
 }
 
 export interface UpdateOrgRequest {
   name?: string;
+  slug?: string;
+  apns_key_id?: string;
+  apns_key_p8?: string;
+}
+
+export interface UploadImageRequest {
+  purpose: string;
+  filename: string;
+  data: string;
+}
+
+export interface UploadCertificateRequest {
+  cert_type: CertType;
+  cert_data: string;
+}
+
+export interface UploadP12Request {
+  p12_data: string;
+  password?: string;
+}
+
+export interface AcceptInvitationRequest {
+  token: string;
 }
 
 // ── Response Types ──
@@ -235,17 +269,48 @@ export interface GeneratePassResponse {
 }
 
 export interface UpdatePassResponse {
-  pass: Pass;
-  push_sent: boolean;
+  id: string;
+  status: PassStatus;
+  devices_notified: number;
+  updated_at: string;
 }
 
 export interface VoidPassResponse {
-  pass: Pass;
-  push_sent: boolean;
+  id: string;
+  serial_number: string;
+  status: "invalidated";
+  voided_at: string;
+  updated_at: string;
 }
 
 export interface UpdateAppResponse extends App {
   webhook_secret_raw?: string;
+}
+
+export interface RevokeKeyResponse {
+  id: string;
+  is_active: false;
+  message: string;
+}
+
+export interface AcceptInvitationResponse {
+  organization_id: string;
+  user_id: string;
+  role: OrgRole;
+}
+
+export interface RevokeInvitationResponse {
+  id: string;
+  status: "revoked";
+}
+
+export interface TestWebhookResponse {
+  webhook_url: string;
+  success: boolean;
+  approved: boolean;
+  reason: string;
+  status_code: number;
+  duration_ms: number;
 }
 
 export interface PaginatedList<T> {

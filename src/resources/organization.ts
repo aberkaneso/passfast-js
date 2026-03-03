@@ -6,6 +6,7 @@ import type {
   CreateAppRequest,
   UpdateAppRequest,
   UpdateAppResponse,
+  TestWebhookResponse,
 } from "../types.js";
 
 export class OrganizationResource {
@@ -28,43 +29,43 @@ export class OrganizationResource {
     });
   }
 
-  /** List all apps in the organization. */
-  async listApps(): Promise<App[]> {
-    return this.http.request<App[]>({
+  /** Get the current app (identified by X-App-Id header). */
+  async getApp(): Promise<App> {
+    return this.http.request<App>({
       method: "GET",
-      path: "/manage-org/apps",
+      path: "/manage-org/app",
     });
   }
 
   /** Create a new app. */
-  async createApp(params: CreateAppRequest): Promise<App> {
+  async createApp(params?: CreateAppRequest): Promise<App> {
     return this.http.request<App>({
       method: "POST",
-      path: "/manage-org/apps",
+      path: "/manage-org/app",
       body: params,
     });
   }
 
-  /** Update an app. Returns webhook_secret_raw if regenerate_webhook_secret is true. */
-  async updateApp(appId: string, params: UpdateAppRequest): Promise<UpdateAppResponse> {
+  /** Update the current app. Returns webhook_secret_raw if regenerate_webhook_secret is true. */
+  async updateApp(params: UpdateAppRequest): Promise<UpdateAppResponse> {
     return this.http.request<UpdateAppResponse>({
       method: "PATCH",
-      path: `/manage-org/apps/${appId}`,
+      path: "/manage-org/app",
       body: params,
     });
   }
 
-  /** Delete an app. */
-  async deleteApp(appId: string): Promise<void> {
+  /** Delete the current app. */
+  async deleteApp(): Promise<void> {
     await this.http.request<void>({
       method: "DELETE",
-      path: `/manage-org/apps/${appId}`,
+      path: "/manage-org/app",
     });
   }
 
-  /** Test the configured validation webhook. */
-  async testWebhook(): Promise<{ success: boolean; status?: number; body?: unknown }> {
-    return this.http.request({
+  /** Test the configured webhook. */
+  async testWebhook(): Promise<TestWebhookResponse> {
+    return this.http.request<TestWebhookResponse>({
       method: "POST",
       path: "/manage-org/app/test-webhook",
     });

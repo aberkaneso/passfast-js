@@ -4,16 +4,27 @@ import type {
   Invitation,
   InviteMemberRequest,
   ChangeRoleRequest,
+  AcceptInvitationRequest,
+  AcceptInvitationResponse,
+  RevokeInvitationResponse,
 } from "../types.js";
 
 export class Members {
   constructor(private http: HttpClient) {}
 
   /** List all organization members. */
-  async list(): Promise<{ members: Member[]; invitations: Invitation[] }> {
-    return this.http.request({
+  async list(): Promise<Member[]> {
+    return this.http.request<Member[]>({
       method: "GET",
       path: "/manage-members",
+    });
+  }
+
+  /** List all pending invitations. */
+  async listInvitations(): Promise<Invitation[]> {
+    return this.http.request<Invitation[]>({
+      method: "GET",
+      path: "/manage-members/invitations",
     });
   }
 
@@ -26,11 +37,28 @@ export class Members {
     });
   }
 
+  /** Accept an invitation. */
+  async acceptInvitation(params: AcceptInvitationRequest): Promise<AcceptInvitationResponse> {
+    return this.http.request<AcceptInvitationResponse>({
+      method: "POST",
+      path: "/manage-members/accept",
+      body: params,
+    });
+  }
+
+  /** Revoke a pending invitation. */
+  async revokeInvitation(invitationId: string): Promise<RevokeInvitationResponse> {
+    return this.http.request<RevokeInvitationResponse>({
+      method: "DELETE",
+      path: `/manage-members/invitations/${invitationId}`,
+    });
+  }
+
   /** Change a member's role. */
   async changeRole(userId: string, params: ChangeRoleRequest): Promise<Member> {
     return this.http.request<Member>({
       method: "PATCH",
-      path: `/manage-members/${userId}/role`,
+      path: `/manage-members/${userId}`,
       body: params,
     });
   }

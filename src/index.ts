@@ -48,10 +48,18 @@ export type {
   CreateAppRequest,
   UpdateAppRequest,
   UpdateOrgRequest,
+  UploadImageRequest,
+  UploadCertificateRequest,
+  UploadP12Request,
+  AcceptInvitationRequest,
   // Response types
   GeneratePassResponse,
   UpdatePassResponse,
   VoidPassResponse,
   UpdateAppResponse,
+  RevokeKeyResponse,
+  AcceptInvitationResponse,
+  RevokeInvitationResponse,
+  TestWebhookResponse,
   PaginatedList,
 } from "./types.js";

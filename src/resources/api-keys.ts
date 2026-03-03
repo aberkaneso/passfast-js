@@ -1,5 +1,5 @@
 import type { HttpClient } from "../http-client.js";
-import type { ApiKey, ApiKeyCreated, CreateApiKeyRequest } from "../types.js";
+import type { ApiKey, ApiKeyCreated, CreateApiKeyRequest, RevokeKeyResponse } from "../types.js";
 
 export class ApiKeys {
   constructor(private http: HttpClient) {}
@@ -21,8 +21,16 @@ export class ApiKeys {
     });
   }
 
-  /** Revoke (delete) an API key. */
-  async revoke(keyId: string): Promise<void> {
+  /** Revoke (deactivate) an API key. The key is soft-deleted and can no longer be used. */
+  async revoke(keyId: string): Promise<RevokeKeyResponse> {
+    return this.http.request<RevokeKeyResponse>({
+      method: "PATCH",
+      path: `/manage-keys/${keyId}`,
+    });
+  }
+
+  /** Permanently delete an API key. */
+  async delete(keyId: string): Promise<void> {
     await this.http.request<void>({
       method: "DELETE",
       path: `/manage-keys/${keyId}`,

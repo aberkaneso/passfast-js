@@ -1,15 +1,15 @@
 import type { HttpClient } from "../http-client.js";
-import type { Image } from "../types.js";
+import type { Image, UploadImageRequest } from "../types.js";
 
 export class Images {
   constructor(private http: HttpClient) {}
 
-  /** Upload an image. Pass a FormData with `file` and `image_type` fields. */
-  async upload(formData: FormData): Promise<Image> {
+  /** Upload an image as base64-encoded JSON. */
+  async upload(params: UploadImageRequest): Promise<Image> {
     return this.http.request<Image>({
       method: "POST",
       path: "/manage-images",
-      body: formData,
+      body: params,
     });
   }
 
