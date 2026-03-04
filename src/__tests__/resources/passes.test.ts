@@ -40,6 +40,39 @@ describe("Passes", () => {
       expect(result.existed).toBe(false);
     });
 
+    it("sends generate with locations, relevant_date, and max_distance", async () => {
+      const headers = new Headers({
+        "X-Pass-Id": "pass-3",
+        "X-Pass-Existed": "false",
+      });
+      mockHttp.request.mockResolvedValue({
+        status: 200,
+        headers,
+        body: new Uint8Array([4, 5, 6]),
+      });
+
+      const params = {
+        template_id: "tpl-1",
+        serial_number: "SN-003",
+        data: { name: "Jane" },
+        locations: [
+          { latitude: 40.7128, longitude: -74.006 },
+          { latitude: 34.0522, longitude: -118.2437, altitude: 71, relevantText: "LA Office" },
+        ],
+        relevant_date: "2026-12-25T00:00:00Z",
+        max_distance: 1000,
+      };
+      const result = await passes.generate(params);
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "POST",
+        path: "/generate-pass",
+        body: params,
+        rawResponse: true,
+      });
+      expect(result.passId).toBe("pass-3");
+    });
+
     it("sets existed=true when header says so", async () => {
       const headers = new Headers({
         "X-Pass-Id": "pass-2",
@@ -112,6 +145,21 @@ describe("Passes", () => {
     it("sends PATCH /manage-passes/{id} with body", async () => {
       mockHttp.request.mockResolvedValue({ id: "pass-1", status: "active" });
       const params = { data: { name: "Updated" }, push_update: true };
+      await passes.update("pass-1", params);
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "PATCH",
+        path: "/manage-passes/pass-1",
+        body: params,
+      });
+    });
+
+    it("sends PATCH with locations, relevant_date, and max_distance", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", status: "active" });
+      const params = {
+        locations: [{ latitude: 37.33, longitude: -122.03, relevantText: "Near HQ" }],
+        relevant_date: "2026-06-15T09:00:00Z",
+        max_distance: 500,
+      };
       await passes.update("pass-1", params);
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "PATCH",

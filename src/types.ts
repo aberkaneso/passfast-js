@@ -9,6 +9,8 @@ export type PassStyle =
 
 export type PassStatus = "active" | "invalidated" | "expired";
 
+export type TemplateStatus = "draft" | "published" | "archived";
+
 export type CertType = "signer_cert" | "signer_key" | "wwdr";
 
 export type KeyType = "secret" | "publishable";
@@ -26,6 +28,13 @@ export type DeliveryStatus = "pending" | "delivered" | "failed";
 
 // ── Models ──
 
+export interface Location {
+  latitude: number;
+  longitude: number;
+  altitude?: number;
+  relevantText?: string;
+}
+
 export interface Pass {
   id: string;
   serial_number: string;
@@ -39,6 +48,8 @@ export interface Pass {
   pkpass_storage_path: string;
   pkpass_hash: string;
   expires_at: string | null;
+  voided_at: string | null;
+  last_updated_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,7 +63,13 @@ export interface Template {
   pass_style: PassStyle;
   structure: Record<string, unknown>;
   field_schema: Record<string, unknown> | null;
-  is_published: boolean;
+  status: TemplateStatus;
+  icon_image_id: string | null;
+  logo_image_id: string | null;
+  strip_image_id: string | null;
+  thumbnail_image_id: string | null;
+  background_image_id: string | null;
+  published_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,8 +81,7 @@ export interface Image {
   purpose: string;
   filename: string;
   storage_path: string;
-  content_type: string;
-  size: number;
+  preview_url: string;
   created_at: string;
 }
 
@@ -74,13 +90,9 @@ export interface Certificate {
   organization_id: string;
   app_id: string;
   cert_type: CertType;
-  filename: string;
-  subject: string | null;
-  issuer: string | null;
-  valid_from: string | null;
-  valid_to: string | null;
   is_active: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Organization {
@@ -88,6 +100,11 @@ export interface Organization {
   name: string;
   slug: string | null;
   apns_key_id: string | null;
+  billing_plan: string | null;
+  monthly_pass_limit: number | null;
+  features: Record<string, unknown> | null;
+  is_active: boolean;
+  webhook_secret: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -101,16 +118,19 @@ export interface App {
   is_active: boolean;
   validation_webhook_url: string | null;
   webhook_url: string | null;
+  webhook_secret: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface ApiKey {
   id: string;
-  organization_id: string;
   name: string;
   key_type: KeyType;
-  prefix: string;
+  key_prefix: string;
+  scopes: string[];
+  expires_at: string | null;
+  is_active: boolean;
   last_used_at: string | null;
   created_at: string;
 }
@@ -120,31 +140,28 @@ export interface ApiKeyCreated extends ApiKey {
 }
 
 export interface Member {
+  id: string;
   user_id: string;
   email: string;
   role: OrgRole;
-  joined_at: string;
+  created_at: string;
 }
 
 export interface Invitation {
   id: string;
   email: string;
-  role: OrgRole;
-  status: "pending" | "accepted" | "expired";
-  accept_url?: string;
+  role: "admin" | "editor" | "viewer";
+  status: "pending" | "accepted" | "expired" | "revoked";
   expires_at: string;
   created_at: string;
 }
 
 export interface WebhookEvent {
   id: string;
-  organization_id: string;
-  app_id: string;
   event_type: EventType;
   payload: Record<string, unknown>;
   delivery_status: DeliveryStatus;
   attempts: number;
-  last_attempt_at: string | null;
   delivered_at: string | null;
   next_retry_at: string | null;
   last_error: string | null;
@@ -160,6 +177,9 @@ export interface GeneratePassRequest {
   external_id?: string;
   expires_at?: string;
   get_or_create?: boolean;
+  locations?: Location[];
+  relevant_date?: string;
+  max_distance?: number;
 }
 
 export interface ListPassesParams {
@@ -174,8 +194,11 @@ export interface ListPassesParams {
 }
 
 export interface UpdatePassRequest {
-  data: Record<string, unknown>;
+  data?: Record<string, unknown>;
   push_update?: boolean;
+  locations?: Location[];
+  relevant_date?: string;
+  max_distance?: number;
 }
 
 export interface CreateTemplateRequest {
@@ -206,11 +229,16 @@ export interface CreateApiKeyRequest {
 
 export interface InviteMemberRequest {
   email: string;
-  role: OrgRole;
+  role: "admin" | "editor" | "viewer";
 }
 
 export interface ChangeRoleRequest {
-  role: OrgRole;
+  role: "admin" | "editor" | "viewer";
+}
+
+export interface ChangeRoleResponse {
+  id: string;
+  role: "admin" | "editor" | "viewer";
 }
 
 export interface ListWebhookEventsParams {

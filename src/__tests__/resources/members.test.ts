@@ -71,14 +71,15 @@ describe("Members", () => {
 
   describe("changeRole", () => {
     it("sends PATCH /manage-members/{id} with body", async () => {
-      mockHttp.request.mockResolvedValue({ user_id: "u-1", role: "admin" });
+      mockHttp.request.mockResolvedValue({ id: "u-1", role: "admin" });
       const params = { role: "admin" as const };
-      await members.changeRole("u-1", params);
+      const result = await members.changeRole("u-1", params);
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "PATCH",
         path: "/manage-members/u-1",
         body: params,
       });
+      expect(result).toEqual({ id: "u-1", role: "admin" });
     });
   });
 

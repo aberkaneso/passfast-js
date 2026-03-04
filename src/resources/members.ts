@@ -4,6 +4,7 @@ import type {
   Invitation,
   InviteMemberRequest,
   ChangeRoleRequest,
+  ChangeRoleResponse,
   AcceptInvitationRequest,
   AcceptInvitationResponse,
   RevokeInvitationResponse,
@@ -55,8 +56,8 @@ export class Members {
   }
 
   /** Change a member's role. */
-  async changeRole(userId: string, params: ChangeRoleRequest): Promise<Member> {
-    return this.http.request<Member>({
+  async changeRole(userId: string, params: ChangeRoleRequest): Promise<ChangeRoleResponse> {
+    return this.http.request<ChangeRoleResponse>({
       method: "PATCH",
       path: `/manage-members/${userId}`,
       body: params,
