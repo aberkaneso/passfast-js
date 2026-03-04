@@ -9,6 +9,13 @@ Official TypeScript SDK for the PassFast Apple Wallet Pass platform.
 - `npm run typecheck` — Type-check with tsc --noEmit
 - `npm run clean` — Remove dist/
 
+## Publishing
+
+- Published as `@passfast/sdk` on npm (public, scoped under `@passfast` org)
+- Bump version with `npm version patch|minor|major --no-git-tag-version`
+- Build before publishing: `npm run build`
+- Publish: `npm publish --access public` (requires security key 2FA — must run interactively)
+
 ## Project Structure
 
 ```

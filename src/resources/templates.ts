@@ -29,7 +29,7 @@ export class Templates {
   async get(templateId: string): Promise<Template> {
     return this.http.request<Template>({
       method: "GET",
-      path: `/manage-templates/${templateId}`,
+      path: `/manage-templates/${encodeURIComponent(templateId)}`,
     });
   }
 
@@ -37,7 +37,7 @@ export class Templates {
   async update(templateId: string, params: UpdateTemplateRequest): Promise<Template> {
     return this.http.request<Template>({
       method: "PATCH",
-      path: `/manage-templates/${templateId}`,
+      path: `/manage-templates/${encodeURIComponent(templateId)}`,
       body: params,
     });
   }
@@ -46,7 +46,7 @@ export class Templates {
   async delete(templateId: string): Promise<void> {
     await this.http.request<void>({
       method: "DELETE",
-      path: `/manage-templates/${templateId}`,
+      path: `/manage-templates/${encodeURIComponent(templateId)}`,
     });
   }
 
@@ -54,7 +54,7 @@ export class Templates {
   async publish(templateId: string): Promise<Template> {
     return this.http.request<Template>({
       method: "POST",
-      path: `/manage-templates/${templateId}/publish`,
+      path: `/manage-templates/${encodeURIComponent(templateId)}/publish`,
     });
   }
 }

@@ -25,7 +25,7 @@ export class ApiKeys {
   async revoke(keyId: string): Promise<RevokeKeyResponse> {
     return this.http.request<RevokeKeyResponse>({
       method: "PATCH",
-      path: `/manage-keys/${keyId}`,
+      path: `/manage-keys/${encodeURIComponent(keyId)}`,
     });
   }
 
@@ -33,7 +33,7 @@ export class ApiKeys {
   async delete(keyId: string): Promise<void> {
     await this.http.request<void>({
       method: "DELETE",
-      path: `/manage-keys/${keyId}`,
+      path: `/manage-keys/${encodeURIComponent(keyId)}`,
     });
   }
 }

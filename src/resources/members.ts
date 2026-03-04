@@ -51,7 +51,7 @@ export class Members {
   async revokeInvitation(invitationId: string): Promise<RevokeInvitationResponse> {
     return this.http.request<RevokeInvitationResponse>({
       method: "DELETE",
-      path: `/manage-members/invitations/${invitationId}`,
+      path: `/manage-members/invitations/${encodeURIComponent(invitationId)}`,
     });
   }
 
@@ -59,7 +59,7 @@ export class Members {
   async changeRole(userId: string, params: ChangeRoleRequest): Promise<ChangeRoleResponse> {
     return this.http.request<ChangeRoleResponse>({
       method: "PATCH",
-      path: `/manage-members/${userId}`,
+      path: `/manage-members/${encodeURIComponent(userId)}`,
       body: params,
     });
   }
@@ -68,7 +68,7 @@ export class Members {
   async remove(userId: string): Promise<void> {
     await this.http.request<void>({
       method: "DELETE",
-      path: `/manage-members/${userId}`,
+      path: `/manage-members/${encodeURIComponent(userId)}`,
     });
   }
 }

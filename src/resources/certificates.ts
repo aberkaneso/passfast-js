@@ -34,7 +34,7 @@ export class Certificates {
   async delete(certId: string): Promise<void> {
     await this.http.request<void>({
       method: "DELETE",
-      path: `/manage-certs/${certId}`,
+      path: `/manage-certs/${encodeURIComponent(certId)}`,
     });
   }
 }

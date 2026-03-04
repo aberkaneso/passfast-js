@@ -41,7 +41,7 @@ export class Passes {
   async get(passId: string): Promise<Pass> {
     return this.http.request<Pass>({
       method: "GET",
-      path: `/manage-passes/${passId}`,
+      path: `/manage-passes/${encodeURIComponent(passId)}`,
     });
   }
 
@@ -49,7 +49,7 @@ export class Passes {
   async download(passId: string): Promise<Uint8Array> {
     const res = await this.http.request({
       method: "GET",
-      path: `/manage-passes/${passId}/download`,
+      path: `/manage-passes/${encodeURIComponent(passId)}/download`,
       rawResponse: true,
     });
     return res.body;
@@ -59,7 +59,7 @@ export class Passes {
   async update(passId: string, params: UpdatePassRequest): Promise<UpdatePassResponse> {
     return this.http.request<UpdatePassResponse>({
       method: "PATCH",
-      path: `/manage-passes/${passId}`,
+      path: `/manage-passes/${encodeURIComponent(passId)}`,
       body: params,
     });
   }
@@ -68,7 +68,7 @@ export class Passes {
   async void(passId: string): Promise<VoidPassResponse> {
     return this.http.request<VoidPassResponse>({
       method: "POST",
-      path: `/manage-passes/${passId}/void`,
+      path: `/manage-passes/${encodeURIComponent(passId)}/void`,
     });
   }
 }

@@ -25,7 +25,7 @@ export class Images {
   async delete(imageId: string): Promise<void> {
     await this.http.request<void>({
       method: "DELETE",
-      path: `/manage-images/${imageId}`,
+      path: `/manage-images/${encodeURIComponent(imageId)}`,
     });
   }
 }

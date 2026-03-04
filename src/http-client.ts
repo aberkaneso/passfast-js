@@ -31,6 +31,9 @@ export class HttpClient {
   private timeout: number;
 
   constructor(config: HttpClientConfig) {
+    if (!/^https:\/\//i.test(config.baseUrl)) {
+      throw new Error("baseUrl must use HTTPS");
+    }
     this.baseUrl = config.baseUrl.replace(/\/+$/, "");
     this.apiKey = config.apiKey;
     this.orgId = config.orgId;
@@ -44,8 +47,8 @@ export class HttpClient {
     const url = this.buildUrl(options.path, options.query);
 
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${this.apiKey}`,
       ...options.headers,
+      Authorization: `Bearer ${this.apiKey}`,
     };
 
     if (this.orgId) headers["X-Org-Id"] = this.orgId;

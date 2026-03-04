@@ -44,6 +44,7 @@ export interface Pass {
   status: PassStatus;
   dynamic_data: Record<string, unknown>;
   external_id: string | null;
+  /** @remarks This is a secret — do not log. */
   authentication_token: string;
   pkpass_storage_path: string;
   pkpass_hash: string;
@@ -104,6 +105,7 @@ export interface Organization {
   monthly_pass_limit: number | null;
   features: Record<string, unknown> | null;
   is_active: boolean;
+  /** @remarks This is a secret — do not log. */
   webhook_secret: string | null;
   created_at: string;
   updated_at: string;
@@ -118,6 +120,7 @@ export interface App {
   is_active: boolean;
   validation_webhook_url: string | null;
   webhook_url: string | null;
+  /** @remarks This is a secret — do not log. */
   webhook_secret: string | null;
   created_at: string;
   updated_at: string;
@@ -312,6 +315,7 @@ export interface VoidPassResponse {
 }
 
 export interface UpdateAppResponse extends App {
+  /** @remarks This is a secret — do not log. */
   webhook_secret_raw?: string;
 }
 
