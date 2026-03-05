@@ -36,12 +36,13 @@ describe("Images", () => {
 
   describe("delete", () => {
     it("sends DELETE /manage-images/{id}", async () => {
-      mockHttp.request.mockResolvedValue(undefined);
-      await images.delete("img-1");
+      mockHttp.request.mockResolvedValue({ success: true });
+      const result = await images.delete("img-1");
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "DELETE",
         path: "/manage-images/img-1",
       });
+      expect(result).toEqual({ success: true });
     });
   });
 });

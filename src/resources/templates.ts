@@ -3,6 +3,7 @@ import type {
   Template,
   CreateTemplateRequest,
   UpdateTemplateRequest,
+  DeleteTemplateResponse,
 } from "../types.js";
 
 export class Templates {
@@ -43,8 +44,8 @@ export class Templates {
   }
 
   /** Delete a template. */
-  async delete(templateId: string): Promise<void> {
-    await this.http.request<void>({
+  async delete(templateId: string): Promise<DeleteTemplateResponse> {
+    return this.http.request<DeleteTemplateResponse>({
       method: "DELETE",
       path: `/manage-templates/${encodeURIComponent(templateId)}`,
     });

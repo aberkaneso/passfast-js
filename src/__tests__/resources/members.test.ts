@@ -34,14 +34,15 @@ describe("Members", () => {
 
   describe("invite", () => {
     it("sends POST /manage-members/invite with body", async () => {
-      mockHttp.request.mockResolvedValue({ id: "inv-1" });
+      mockHttp.request.mockResolvedValue({ id: "inv-1", accept_url: "https://example.com/accept" });
       const params = { email: "user@example.com", role: "editor" as const };
-      await members.invite(params);
+      const result = await members.invite(params);
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "POST",
         path: "/manage-members/invite",
         body: params,
       });
+      expect(result.accept_url).toBe("https://example.com/accept");
     });
   });
 
@@ -85,12 +86,13 @@ describe("Members", () => {
 
   describe("remove", () => {
     it("sends DELETE /manage-members/{id}", async () => {
-      mockHttp.request.mockResolvedValue(undefined);
-      await members.remove("u-1");
+      mockHttp.request.mockResolvedValue({ id: "u-1", removed: true });
+      const result = await members.remove("u-1");
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "DELETE",
         path: "/manage-members/u-1",
       });
+      expect(result).toEqual({ id: "u-1", removed: true });
     });
   });
 });

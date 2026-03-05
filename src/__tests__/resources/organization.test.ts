@@ -82,12 +82,13 @@ describe("OrganizationResource", () => {
 
   describe("deleteApp", () => {
     it("sends DELETE /manage-org/app", async () => {
-      mockHttp.request.mockResolvedValue(undefined);
-      await org.deleteApp();
+      mockHttp.request.mockResolvedValue({ id: "app-1", is_active: false, message: "deleted" });
+      const result = await org.deleteApp();
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "DELETE",
         path: "/manage-org/app",
       });
+      expect(result).toEqual({ id: "app-1", is_active: false, message: "deleted" });
     });
   });
 

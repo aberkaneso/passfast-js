@@ -1,5 +1,5 @@
 import type { HttpClient } from "../http-client.js";
-import type { Certificate, UploadCertificateRequest, UploadP12Request } from "../types.js";
+import type { Certificate, UploadCertificateRequest, UploadP12Request, UploadP12Response, DeleteCertificateResponse } from "../types.js";
 
 export class Certificates {
   constructor(private http: HttpClient) {}
@@ -14,8 +14,8 @@ export class Certificates {
   }
 
   /** Upload a P12 certificate bundle. Returns extracted certificates. */
-  async uploadP12(params: UploadP12Request): Promise<Certificate[]> {
-    return this.http.request<Certificate[]>({
+  async uploadP12(params: UploadP12Request): Promise<UploadP12Response> {
+    return this.http.request<UploadP12Response>({
       method: "POST",
       path: "/manage-certs/p12",
       body: params,
@@ -31,8 +31,8 @@ export class Certificates {
   }
 
   /** Delete a certificate by ID. */
-  async delete(certId: string): Promise<void> {
-    await this.http.request<void>({
+  async delete(certId: string): Promise<DeleteCertificateResponse> {
+    return this.http.request<DeleteCertificateResponse>({
       method: "DELETE",
       path: `/manage-certs/${encodeURIComponent(certId)}`,
     });

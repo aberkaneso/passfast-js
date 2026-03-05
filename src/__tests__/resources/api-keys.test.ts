@@ -47,12 +47,13 @@ describe("ApiKeys", () => {
 
   describe("delete", () => {
     it("sends DELETE /manage-keys/{id}", async () => {
-      mockHttp.request.mockResolvedValue(undefined);
-      await apiKeys.delete("key-1");
+      mockHttp.request.mockResolvedValue({ id: "key-1", message: "deleted" });
+      const result = await apiKeys.delete("key-1");
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "DELETE",
         path: "/manage-keys/key-1",
       });
+      expect(result).toEqual({ id: "key-1", message: "deleted" });
     });
   });
 });

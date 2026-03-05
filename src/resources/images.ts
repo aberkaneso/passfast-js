@@ -1,5 +1,5 @@
 import type { HttpClient } from "../http-client.js";
-import type { Image, UploadImageRequest } from "../types.js";
+import type { Image, UploadImageRequest, DeleteImageResponse } from "../types.js";
 
 export class Images {
   constructor(private http: HttpClient) {}
@@ -22,8 +22,8 @@ export class Images {
   }
 
   /** Delete an image by ID. */
-  async delete(imageId: string): Promise<void> {
-    await this.http.request<void>({
+  async delete(imageId: string): Promise<DeleteImageResponse> {
+    return this.http.request<DeleteImageResponse>({
       method: "DELETE",
       path: `/manage-images/${encodeURIComponent(imageId)}`,
     });

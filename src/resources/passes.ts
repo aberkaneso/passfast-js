@@ -7,6 +7,7 @@ import type {
   UpdatePassRequest,
   UpdatePassResponse,
   VoidPassResponse,
+  DeletePassResponse,
 } from "../types.js";
 
 export class Passes {
@@ -70,5 +71,48 @@ export class Passes {
       method: "POST",
       path: `/manage-passes/${encodeURIComponent(passId)}/void`,
     });
+  }
+
+  /** Delete a pass by ID. */
+  async delete(passId: string): Promise<DeletePassResponse> {
+    return this.http.request<DeletePassResponse>({
+      method: "DELETE",
+      path: `/manage-passes/${encodeURIComponent(passId)}`,
+    });
+  }
+
+  /** Get a single pass by serial number. */
+  async getBySerial(serialNumber: string): Promise<Pass> {
+    return this.http.request<Pass>({
+      method: "GET",
+      path: `/manage-passes/serial/${encodeURIComponent(serialNumber)}`,
+    });
+  }
+
+  /** Update a pass by serial number. */
+  async updateBySerial(serialNumber: string, params: UpdatePassRequest): Promise<UpdatePassResponse> {
+    return this.http.request<UpdatePassResponse>({
+      method: "PATCH",
+      path: `/manage-passes/serial/${encodeURIComponent(serialNumber)}`,
+      body: params,
+    });
+  }
+
+  /** Delete a pass by serial number. */
+  async deleteBySerial(serialNumber: string): Promise<DeletePassResponse> {
+    return this.http.request<DeletePassResponse>({
+      method: "DELETE",
+      path: `/manage-passes/serial/${encodeURIComponent(serialNumber)}`,
+    });
+  }
+
+  /** Download the .pkpass binary for a pass by serial number. */
+  async downloadBySerial(serialNumber: string): Promise<Uint8Array> {
+    const res = await this.http.request({
+      method: "GET",
+      path: `/manage-passes/serial/${encodeURIComponent(serialNumber)}/download`,
+      rawResponse: true,
+    });
+    return res.body;
   }
 }

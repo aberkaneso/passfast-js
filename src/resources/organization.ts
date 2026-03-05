@@ -6,6 +6,7 @@ import type {
   CreateAppRequest,
   UpdateAppRequest,
   UpdateAppResponse,
+  DeleteAppResponse,
   TestWebhookResponse,
 } from "../types.js";
 
@@ -56,8 +57,8 @@ export class OrganizationResource {
   }
 
   /** Delete the current app. */
-  async deleteApp(): Promise<void> {
-    await this.http.request<void>({
+  async deleteApp(): Promise<DeleteAppResponse> {
+    return this.http.request<DeleteAppResponse>({
       method: "DELETE",
       path: "/manage-org/app",
     });

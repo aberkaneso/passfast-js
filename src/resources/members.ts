@@ -3,11 +3,13 @@ import type {
   Member,
   Invitation,
   InviteMemberRequest,
+  InviteMemberResponse,
   ChangeRoleRequest,
   ChangeRoleResponse,
   AcceptInvitationRequest,
   AcceptInvitationResponse,
   RevokeInvitationResponse,
+  RemoveMemberResponse,
 } from "../types.js";
 
 export class Members {
@@ -38,8 +40,8 @@ export class Members {
   }
 
   /** Invite a new member by email. */
-  async invite(params: InviteMemberRequest): Promise<Invitation> {
-    return this.http.request<Invitation>({
+  async invite(params: InviteMemberRequest): Promise<InviteMemberResponse> {
+    return this.http.request<InviteMemberResponse>({
       method: "POST",
       path: "/manage-members/invite",
       body: params,
@@ -77,8 +79,8 @@ export class Members {
   }
 
   /** Remove a member from the organization. */
-  async remove(userId: string): Promise<void> {
-    await this.http.request<void>({
+  async remove(userId: string): Promise<RemoveMemberResponse> {
+    return this.http.request<RemoveMemberResponse>({
       method: "DELETE",
       path: `/manage-members/${encodeURIComponent(userId)}`,
       headers: this.orgHeaders,

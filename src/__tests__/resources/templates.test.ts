@@ -64,12 +64,13 @@ describe("Templates", () => {
 
   describe("delete", () => {
     it("sends DELETE /manage-templates/{id}", async () => {
-      mockHttp.request.mockResolvedValue(undefined);
-      await templates.delete("tpl-1");
+      mockHttp.request.mockResolvedValue({ success: true });
+      const result = await templates.delete("tpl-1");
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "DELETE",
         path: "/manage-templates/tpl-1",
       });
+      expect(result).toEqual({ success: true });
     });
   });
 

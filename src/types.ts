@@ -150,11 +150,13 @@ export interface Member {
   created_at: string;
 }
 
+export type InvitationStatus = "pending" | "accepted" | "expired" | "revoked";
+
 export interface Invitation {
   id: string;
   email: string;
   role: "admin" | "editor" | "viewer";
-  status: "pending" | "accepted" | "expired" | "revoked";
+  status: InvitationStatus;
   expires_at: string;
   created_at: string;
 }
@@ -343,6 +345,49 @@ export interface TestWebhookResponse {
   reason: string;
   status_code: number;
   duration_ms: number;
+}
+
+export interface DeletePassResponse {
+  id: string;
+  serial_number: string;
+  deleted: boolean;
+}
+
+export interface UploadP12Response {
+  message: string;
+  certificates: Certificate[];
+}
+
+export interface DeleteAppResponse {
+  id: string;
+  is_active: boolean;
+  message: string;
+}
+
+export interface DeleteKeyResponse {
+  id: string;
+  message: string;
+}
+
+export interface RemoveMemberResponse {
+  id: string;
+  removed: boolean;
+}
+
+export interface DeleteTemplateResponse {
+  success: boolean;
+}
+
+export interface DeleteImageResponse {
+  success: boolean;
+}
+
+export interface DeleteCertificateResponse {
+  success: boolean;
+}
+
+export interface InviteMemberResponse extends Invitation {
+  accept_url: string;
 }
 
 export interface PaginatedList<T> {

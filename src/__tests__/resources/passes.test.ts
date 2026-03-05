@@ -179,4 +179,66 @@ describe("Passes", () => {
       });
     });
   });
+
+  describe("delete", () => {
+    it("sends DELETE /manage-passes/{id}", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", serial_number: "SN-001", deleted: true });
+      const result = await passes.delete("pass-1");
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "DELETE",
+        path: "/manage-passes/pass-1",
+      });
+      expect(result).toEqual({ id: "pass-1", serial_number: "SN-001", deleted: true });
+    });
+  });
+
+  describe("getBySerial", () => {
+    it("sends GET /manage-passes/serial/{serial_number}", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", serial_number: "SN-001" });
+      await passes.getBySerial("SN-001");
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "GET",
+        path: "/manage-passes/serial/SN-001",
+      });
+    });
+  });
+
+  describe("updateBySerial", () => {
+    it("sends PATCH /manage-passes/serial/{serial_number} with body", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", status: "active" });
+      const params = { data: { name: "Updated" }, push_update: true };
+      await passes.updateBySerial("SN-001", params);
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "PATCH",
+        path: "/manage-passes/serial/SN-001",
+        body: params,
+      });
+    });
+  });
+
+  describe("deleteBySerial", () => {
+    it("sends DELETE /manage-passes/serial/{serial_number}", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", serial_number: "SN-001", deleted: true });
+      const result = await passes.deleteBySerial("SN-001");
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "DELETE",
+        path: "/manage-passes/serial/SN-001",
+      });
+      expect(result).toEqual({ id: "pass-1", serial_number: "SN-001", deleted: true });
+    });
+  });
+
+  describe("downloadBySerial", () => {
+    it("sends GET /manage-passes/serial/{serial_number}/download with rawResponse", async () => {
+      const body = new Uint8Array([1, 2, 3]);
+      mockHttp.request.mockResolvedValue({ status: 200, headers: new Headers(), body });
+      const result = await passes.downloadBySerial("SN-001");
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "GET",
+        path: "/manage-passes/serial/SN-001/download",
+        rawResponse: true,
+      });
+      expect(result).toBe(body);
+    });
+  });
 });
