@@ -33,7 +33,6 @@ export class PassFast {
     const config: HttpClientConfig = {
       baseUrl: DEFAULT_BASE_URL,
       apiKey,
-      orgId: options?.orgId,
       appId: options?.appId,
       timeout: options?.timeout,
     };
@@ -46,7 +45,7 @@ export class PassFast {
     this.certificates = new Certificates(http);
     this.organization = new OrganizationResource(http);
     this.apiKeys = new ApiKeys(http);
-    this.members = new Members(http);
+    this.members = new Members(http, options?.orgId);
     this.webhookEvents = new WebhookEvents(http);
   }
 }

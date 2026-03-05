@@ -3,7 +3,6 @@ import { errorFromResponse, PassFastError } from "./errors.js";
 export interface HttpClientConfig {
   baseUrl: string;
   apiKey: string;
-  orgId?: string;
   appId?: string;
   timeout?: number;
 }
@@ -26,14 +25,12 @@ export interface RawResponse {
 export class HttpClient {
   private baseUrl: string;
   private apiKey: string;
-  private orgId?: string;
   private appId?: string;
   private timeout: number;
 
   constructor(config: HttpClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/+$/, "");
     this.apiKey = config.apiKey;
-    this.orgId = config.orgId;
     this.appId = config.appId;
     this.timeout = config.timeout ?? 30_000;
   }
@@ -48,7 +45,6 @@ export class HttpClient {
       Authorization: `Bearer ${this.apiKey}`,
     };
 
-    if (this.orgId) headers["X-Org-Id"] = this.orgId;
     if (this.appId) headers["X-App-Id"] = this.appId;
 
     if (options.body && !(options.body instanceof FormData)) {

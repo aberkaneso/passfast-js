@@ -11,13 +11,20 @@ import type {
 } from "../types.js";
 
 export class Members {
-  constructor(private http: HttpClient) {}
+  private orgHeaders?: Record<string, string>;
+
+  constructor(private http: HttpClient, orgId?: string) {
+    if (orgId) {
+      this.orgHeaders = { "X-Org-Id": orgId };
+    }
+  }
 
   /** List all organization members. */
   async list(): Promise<Member[]> {
     return this.http.request<Member[]>({
       method: "GET",
       path: "/manage-members",
+      headers: this.orgHeaders,
     });
   }
 
@@ -26,6 +33,7 @@ export class Members {
     return this.http.request<Invitation[]>({
       method: "GET",
       path: "/manage-members/invitations",
+      headers: this.orgHeaders,
     });
   }
 
@@ -35,6 +43,7 @@ export class Members {
       method: "POST",
       path: "/manage-members/invite",
       body: params,
+      headers: this.orgHeaders,
     });
   }
 
@@ -44,6 +53,7 @@ export class Members {
       method: "POST",
       path: "/manage-members/accept",
       body: params,
+      headers: this.orgHeaders,
     });
   }
 
@@ -52,6 +62,7 @@ export class Members {
     return this.http.request<RevokeInvitationResponse>({
       method: "DELETE",
       path: `/manage-members/invitations/${encodeURIComponent(invitationId)}`,
+      headers: this.orgHeaders,
     });
   }
 
@@ -61,6 +72,7 @@ export class Members {
       method: "PATCH",
       path: `/manage-members/${encodeURIComponent(userId)}`,
       body: params,
+      headers: this.orgHeaders,
     });
   }
 
@@ -69,6 +81,7 @@ export class Members {
     await this.http.request<void>({
       method: "DELETE",
       path: `/manage-members/${encodeURIComponent(userId)}`,
+      headers: this.orgHeaders,
     });
   }
 }

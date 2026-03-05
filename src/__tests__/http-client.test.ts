@@ -91,14 +91,6 @@ describe("HttpClient", () => {
       expect(opts.headers["Content-Type"]).toBeUndefined();
     });
 
-    it("sends X-Org-Id when configured", async () => {
-      const c = new HttpClient({ baseUrl, apiKey: "k", orgId: "org-1" });
-      globalThis.fetch = mockFetch({});
-      await c.request({ method: "GET", path: "/x" });
-      const opts = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1];
-      expect(opts.headers["X-Org-Id"]).toBe("org-1");
-    });
-
     it("sends X-App-Id when configured", async () => {
       const c = new HttpClient({ baseUrl, apiKey: "k", appId: "app-1" });
       globalThis.fetch = mockFetch({});
@@ -107,11 +99,10 @@ describe("HttpClient", () => {
       expect(opts.headers["X-App-Id"]).toBe("app-1");
     });
 
-    it("does not send X-Org-Id or X-App-Id when not configured", async () => {
+    it("does not send X-App-Id when not configured", async () => {
       globalThis.fetch = mockFetch({});
       await client.request({ method: "GET", path: "/x" });
       const opts = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1];
-      expect(opts.headers["X-Org-Id"]).toBeUndefined();
       expect(opts.headers["X-App-Id"]).toBeUndefined();
     });
   });
