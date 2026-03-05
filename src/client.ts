@@ -11,8 +11,6 @@ import { WebhookEvents } from "./resources/webhook-events.js";
 const DEFAULT_BASE_URL = "https://fbscxchawurdbieuowdi.supabase.co/functions/v1";
 
 export interface PassFastOptions {
-  /** Base URL of the PassFast API. Defaults to the hosted PassFast instance. */
-  baseUrl?: string;
   /** Organization ID. Required for JWT auth, optional for API key auth. */
   orgId?: string;
   /** App ID. Required if the org has multiple apps. */
@@ -33,7 +31,7 @@ export class PassFast {
 
   constructor(apiKey: string, options?: PassFastOptions) {
     const config: HttpClientConfig = {
-      baseUrl: options?.baseUrl ?? DEFAULT_BASE_URL,
+      baseUrl: DEFAULT_BASE_URL,
       apiKey,
       orgId: options?.orgId,
       appId: options?.appId,

@@ -24,7 +24,6 @@ describe("PassFast client", () => {
 
   it("accepts options", () => {
     const client = new PassFast("sk-test-123", {
-      baseUrl: "https://custom.api.com",
       orgId: "org-1",
       appId: "app-1",
       timeout: 5000,

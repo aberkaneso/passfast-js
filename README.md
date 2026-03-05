@@ -46,7 +46,6 @@ await pf.passes.update(passId, {
 
 ```typescript
 const pf = new PassFast("sk_live_...", {
-  baseUrl: "https://your-instance.supabase.co/functions/v1", // custom instance
   orgId: "org_...",   // required for JWT auth
   appId: "app_...",   // required if org has multiple apps
   timeout: 15_000,    // request timeout in ms (default: 30000)

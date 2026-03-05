@@ -31,9 +31,6 @@ export class HttpClient {
   private timeout: number;
 
   constructor(config: HttpClientConfig) {
-    if (!/^https:\/\//i.test(config.baseUrl)) {
-      throw new Error("baseUrl must use HTTPS");
-    }
     this.baseUrl = config.baseUrl.replace(/\/+$/, "");
     this.apiKey = config.apiKey;
     this.orgId = config.orgId;

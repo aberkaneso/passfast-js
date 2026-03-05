@@ -36,6 +36,13 @@ src/
 - Snake_case for all API fields (matches OpenAPI spec)
 - No runtime dependencies — only devDependencies (tsup, typescript, vitest)
 
+## Security
+
+- All dynamic path parameters must use `encodeURIComponent()` (prevents path traversal / query injection)
+- `baseUrl` is hardcoded internally — not user-configurable (PassFast is hosted-only)
+- SDK headers (`Authorization`) are spread last to prevent caller override
+- Sensitive fields (`authentication_token`, `webhook_secret`, `webhook_secret_raw`) have JSDoc `@remarks` warnings
+
 ## Syncing with OpenAPI spec
 
 When the OpenAPI spec changes, update `src/types.ts` first, then update resource files if return types or method signatures changed. Run `npm run build` and `npm test` to verify.
