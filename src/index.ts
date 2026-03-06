@@ -18,7 +18,7 @@ export type {
   // Enums
   PassStyle,
   PassStatus,
-  TemplateStatus,
+  ImagePurpose,
   CertType,
   KeyType,
   OrgRole,
@@ -43,6 +43,8 @@ export type {
   UpdatePassRequest,
   CreateTemplateRequest,
   UpdateTemplateRequest,
+  ListTemplatesParams,
+  DeleteTemplateParams,
   CreateApiKeyRequest,
   InviteMemberRequest,
   ChangeRoleRequest,
@@ -58,7 +60,6 @@ export type {
   GeneratePassResponse,
   UpdatePassResponse,
   VoidPassResponse,
-  DeletePassResponse,
   UpdateAppResponse,
   DeleteAppResponse,
   RevokeKeyResponse,
@@ -73,5 +74,4 @@ export type {
   DeleteTemplateResponse,
   DeleteImageResponse,
   DeleteCertificateResponse,
-  PaginatedList,
 } from "./types.js";

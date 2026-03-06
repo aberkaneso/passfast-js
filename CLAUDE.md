@@ -41,16 +41,20 @@ src/
 - All dynamic path parameters must use `encodeURIComponent()` (prevents path traversal / query injection)
 - `baseUrl` is hardcoded internally — not user-configurable (PassFast is hosted-only)
 - SDK headers (`Authorization`) are spread last to prevent caller override
-- Sensitive fields (`authentication_token`, `webhook_secret`, `webhook_secret_raw`) have JSDoc `@remarks` warnings
+- Sensitive fields (`authentication_token`, `webhook_secret`, `webhook_secret_raw`) on App model have JSDoc `@remarks` warnings
 
 ## API Coverage
 
 ### Pass operations
-- CRUD by ID: `generate`, `list`, `get`, `update`, `void`, `delete`, `download`
-- CRUD by serial number: `getBySerial`, `updateBySerial`, `deleteBySerial`, `downloadBySerial`
+- By ID: `generate`, `list`, `get`, `update`, `void`, `download`
+- By serial number: `getBySerial`, `updateBySerial`, `voidBySerial`, `downloadBySerial`
+
+### Template operations
+- `list(params?)` supports `archived` query param
+- `delete(id, params?)` supports `permanent` query param
 
 ### All delete/destructive endpoints return response data
-- No resource methods return `void` — all return typed response objects (e.g., `DeletePassResponse`, `DeleteTemplateResponse`, `RemoveMemberResponse`, etc.)
+- No resource methods return `void` — all return typed response objects (e.g., `DeleteTemplateResponse`, `RemoveMemberResponse`, etc.)
 
 ## Syncing with OpenAPI spec
 

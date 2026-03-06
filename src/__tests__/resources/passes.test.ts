@@ -180,18 +180,6 @@ describe("Passes", () => {
     });
   });
 
-  describe("delete", () => {
-    it("sends DELETE /manage-passes/{id}", async () => {
-      mockHttp.request.mockResolvedValue({ id: "pass-1", serial_number: "SN-001", deleted: true });
-      const result = await passes.delete("pass-1");
-      expect(mockHttp.request).toHaveBeenCalledWith({
-        method: "DELETE",
-        path: "/manage-passes/pass-1",
-      });
-      expect(result).toEqual({ id: "pass-1", serial_number: "SN-001", deleted: true });
-    });
-  });
-
   describe("getBySerial", () => {
     it("sends GET /manage-passes/serial/{serial_number}", async () => {
       mockHttp.request.mockResolvedValue({ id: "pass-1", serial_number: "SN-001" });
@@ -216,15 +204,23 @@ describe("Passes", () => {
     });
   });
 
-  describe("deleteBySerial", () => {
-    it("sends DELETE /manage-passes/serial/{serial_number}", async () => {
-      mockHttp.request.mockResolvedValue({ id: "pass-1", serial_number: "SN-001", deleted: true });
-      const result = await passes.deleteBySerial("SN-001");
-      expect(mockHttp.request).toHaveBeenCalledWith({
-        method: "DELETE",
-        path: "/manage-passes/serial/SN-001",
+  describe("voidBySerial", () => {
+    it("sends POST /manage-passes/serial/{serial_number}/void", async () => {
+      mockHttp.request.mockResolvedValue({
+        id: "pass-1",
+        serial_number: "SN-001",
+        status: "invalidated",
+        voided_at: "2026-03-06T00:00:00Z",
+        updated_at: "2026-03-06T00:00:00Z",
+        pkpass_rebuilt: true,
+        devices_notified: 1,
       });
-      expect(result).toEqual({ id: "pass-1", serial_number: "SN-001", deleted: true });
+      const result = await passes.voidBySerial("SN-001");
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "POST",
+        path: "/manage-passes/serial/SN-001/void",
+      });
+      expect(result.status).toBe("invalidated");
     });
   });
 

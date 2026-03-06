@@ -9,7 +9,21 @@ export type PassStyle =
 
 export type PassStatus = "active" | "invalidated" | "expired";
 
-export type TemplateStatus = "draft" | "published" | "archived";
+export type ImagePurpose =
+  | "icon"
+  | "icon_2x"
+  | "icon_3x"
+  | "logo"
+  | "logo_2x"
+  | "logo_3x"
+  | "thumbnail"
+  | "thumbnail_2x"
+  | "strip"
+  | "strip_2x"
+  | "background"
+  | "background_2x"
+  | "footer"
+  | "footer_2x";
 
 export type CertType = "signer_cert" | "signer_key" | "wwdr";
 
@@ -22,7 +36,8 @@ export type EventType =
   | "pass.updated"
   | "pass.voided"
   | "device.registered"
-  | "device.unregistered";
+  | "device.unregistered"
+  | "pass.expired";
 
 export type DeliveryStatus = "pending" | "delivered" | "failed";
 
@@ -64,7 +79,8 @@ export interface Template {
   pass_style: PassStyle;
   structure: Record<string, unknown>;
   field_schema: Record<string, unknown> | null;
-  status: TemplateStatus;
+  is_published: boolean;
+  is_archived: boolean;
   icon_image_id: string | null;
   logo_image_id: string | null;
   strip_image_id: string | null;
@@ -79,21 +95,25 @@ export interface Image {
   id: string;
   organization_id: string;
   app_id: string;
-  purpose: string;
-  filename: string;
+  purpose: ImagePurpose;
+  mime_type: string;
+  size_bytes: number;
+  width: number | null;
+  height: number | null;
   storage_path: string;
   preview_url: string;
-  created_at: string;
+  uploaded_at: string;
 }
 
 export interface Certificate {
   id: string;
-  organization_id: string;
-  app_id: string;
   cert_type: CertType;
   is_active: boolean;
+  cert_hash: string;
+  common_name: string | null;
+  valid_from: string | null;
+  valid_until: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 export interface Organization {
@@ -105,8 +125,6 @@ export interface Organization {
   monthly_pass_limit: number | null;
   features: Record<string, unknown> | null;
   is_active: boolean;
-  /** @remarks This is a secret — do not log. */
-  webhook_secret: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -140,6 +158,7 @@ export interface ApiKey {
 
 export interface ApiKeyCreated extends ApiKey {
   raw_key: string;
+  message: string;
 }
 
 export interface Member {
@@ -204,6 +223,7 @@ export interface UpdatePassRequest {
   locations?: Location[];
   relevant_date?: string;
   max_distance?: number;
+  expires_at?: string | null;
 }
 
 export interface CreateTemplateRequest {
@@ -225,6 +245,11 @@ export interface UpdateTemplateRequest {
   pass_style?: PassStyle;
   structure?: Record<string, unknown>;
   field_schema?: Record<string, unknown>;
+  icon_image_id?: string | null;
+  logo_image_id?: string | null;
+  strip_image_id?: string | null;
+  thumbnail_image_id?: string | null;
+  background_image_id?: string | null;
 }
 
 export interface CreateApiKeyRequest {
@@ -274,9 +299,17 @@ export interface UpdateOrgRequest {
 }
 
 export interface UploadImageRequest {
-  purpose: string;
+  purpose: ImagePurpose;
   filename: string;
   data: string;
+}
+
+export interface ListTemplatesParams {
+  archived?: boolean;
+}
+
+export interface DeleteTemplateParams {
+  permanent?: boolean;
 }
 
 export interface UploadCertificateRequest {
@@ -306,6 +339,7 @@ export interface UpdatePassResponse {
   status: PassStatus;
   devices_notified: number;
   updated_at: string;
+  expires_at: string | null;
 }
 
 export interface VoidPassResponse {
@@ -314,6 +348,9 @@ export interface VoidPassResponse {
   status: "invalidated";
   voided_at: string;
   updated_at: string;
+  pkpass_rebuilt: boolean;
+  devices_notified: number;
+  warning?: string;
 }
 
 export interface UpdateAppResponse extends App {
@@ -345,12 +382,6 @@ export interface TestWebhookResponse {
   reason: string;
   status_code: number;
   duration_ms: number;
-}
-
-export interface DeletePassResponse {
-  id: string;
-  serial_number: string;
-  deleted: boolean;
 }
 
 export interface UploadP12Response {
@@ -388,9 +419,6 @@ export interface DeleteCertificateResponse {
 
 export interface InviteMemberResponse extends Invitation {
   accept_url: string;
+  email_sent: boolean;
 }
 
-export interface PaginatedList<T> {
-  data: T[];
-  total?: number;
-}

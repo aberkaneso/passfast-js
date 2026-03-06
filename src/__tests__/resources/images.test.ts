@@ -13,7 +13,7 @@ describe("Images", () => {
   describe("upload", () => {
     it("sends POST /manage-images with JSON body", async () => {
       mockHttp.request.mockResolvedValue({ id: "img-1" });
-      const params = { purpose: "icon", filename: "icon.png", data: "base64..." };
+      const params = { purpose: "icon" as const, filename: "icon.png", data: "base64..." };
       await images.upload(params);
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "POST",

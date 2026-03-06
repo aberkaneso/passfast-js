@@ -28,12 +28,23 @@ describe("Templates", () => {
   });
 
   describe("list", () => {
-    it("sends GET /manage-templates", async () => {
+    it("sends GET /manage-templates without params", async () => {
       mockHttp.request.mockResolvedValue([]);
       await templates.list();
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "GET",
         path: "/manage-templates",
+        query: undefined,
+      });
+    });
+
+    it("sends GET /manage-templates with archived query param", async () => {
+      mockHttp.request.mockResolvedValue([]);
+      await templates.list({ archived: true });
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "GET",
+        path: "/manage-templates",
+        query: { archived: true },
       });
     });
   });
@@ -63,14 +74,25 @@ describe("Templates", () => {
   });
 
   describe("delete", () => {
-    it("sends DELETE /manage-templates/{id}", async () => {
+    it("sends DELETE /manage-templates/{id} without params", async () => {
       mockHttp.request.mockResolvedValue({ success: true });
       const result = await templates.delete("tpl-1");
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "DELETE",
         path: "/manage-templates/tpl-1",
+        query: undefined,
       });
       expect(result).toEqual({ success: true });
+    });
+
+    it("sends DELETE /manage-templates/{id} with permanent query param", async () => {
+      mockHttp.request.mockResolvedValue({ success: true });
+      await templates.delete("tpl-1", { permanent: true });
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "DELETE",
+        path: "/manage-templates/tpl-1",
+        query: { permanent: true },
+      });
     });
   });
 

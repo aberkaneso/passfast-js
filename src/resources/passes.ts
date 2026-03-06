@@ -7,7 +7,6 @@ import type {
   UpdatePassRequest,
   UpdatePassResponse,
   VoidPassResponse,
-  DeletePassResponse,
 } from "../types.js";
 
 export class Passes {
@@ -73,14 +72,6 @@ export class Passes {
     });
   }
 
-  /** Delete a pass by ID. */
-  async delete(passId: string): Promise<DeletePassResponse> {
-    return this.http.request<DeletePassResponse>({
-      method: "DELETE",
-      path: `/manage-passes/${encodeURIComponent(passId)}`,
-    });
-  }
-
   /** Get a single pass by serial number. */
   async getBySerial(serialNumber: string): Promise<Pass> {
     return this.http.request<Pass>({
@@ -98,11 +89,11 @@ export class Passes {
     });
   }
 
-  /** Delete a pass by serial number. */
-  async deleteBySerial(serialNumber: string): Promise<DeletePassResponse> {
-    return this.http.request<DeletePassResponse>({
-      method: "DELETE",
-      path: `/manage-passes/serial/${encodeURIComponent(serialNumber)}`,
+  /** Void (invalidate) a pass by serial number. Triggers push notification to registered devices. */
+  async voidBySerial(serialNumber: string): Promise<VoidPassResponse> {
+    return this.http.request<VoidPassResponse>({
+      method: "POST",
+      path: `/manage-passes/serial/${encodeURIComponent(serialNumber)}/void`,
     });
   }
 

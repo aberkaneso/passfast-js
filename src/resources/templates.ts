@@ -4,6 +4,8 @@ import type {
   CreateTemplateRequest,
   UpdateTemplateRequest,
   DeleteTemplateResponse,
+  ListTemplatesParams,
+  DeleteTemplateParams,
 } from "../types.js";
 
 export class Templates {
@@ -19,10 +21,11 @@ export class Templates {
   }
 
   /** List all templates. */
-  async list(): Promise<Template[]> {
+  async list(params?: ListTemplatesParams): Promise<Template[]> {
     return this.http.request<Template[]>({
       method: "GET",
       path: "/manage-templates",
+      query: params as Record<string, string | number | boolean | undefined>,
     });
   }
 
@@ -44,10 +47,11 @@ export class Templates {
   }
 
   /** Delete a template. */
-  async delete(templateId: string): Promise<DeleteTemplateResponse> {
+  async delete(templateId: string, params?: DeleteTemplateParams): Promise<DeleteTemplateResponse> {
     return this.http.request<DeleteTemplateResponse>({
       method: "DELETE",
       path: `/manage-templates/${encodeURIComponent(templateId)}`,
+      query: params as Record<string, string | number | boolean | undefined>,
     });
   }
 
