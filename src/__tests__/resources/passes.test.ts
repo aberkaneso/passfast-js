@@ -11,7 +11,7 @@ beforeEach(() => {
 
 describe("Passes", () => {
   describe("generate", () => {
-    it("sends POST /generate-pass with rawResponse", async () => {
+    it("sends POST /generate-pass with rawResponse for apple (default)", async () => {
       const headers = new Headers({
         "X-Pass-Id": "pass-1",
         "X-Pass-Existed": "false",
@@ -91,6 +91,58 @@ describe("Passes", () => {
       });
       expect(result.existed).toBe(true);
     });
+
+    it("sends JSON request for wallet_type google", async () => {
+      const googleResponse = {
+        id: "pass-g1",
+        serial_number: "SN-001",
+        wallet_type: "google",
+        save_url: "https://pay.google.com/...",
+        google_object_id: "obj-1",
+        status: "active",
+        external_id: null,
+      };
+      mockHttp.request.mockResolvedValue(googleResponse);
+
+      const params = {
+        template_id: "tpl-1",
+        serial_number: "SN-001",
+        data: { name: "John" },
+        wallet_type: "google" as const,
+      };
+      const result = await passes.generate(params);
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "POST",
+        path: "/generate-pass",
+        body: params,
+      });
+      expect(result).toEqual(googleResponse);
+    });
+
+    it("sends JSON request for wallet_type both", async () => {
+      const dualResponse = {
+        apple: { id: "pass-a1", serial_number: "SN-001", wallet_type: "apple", status: "active", download_url: "/manage-passes/pass-a1/download" },
+        google: { id: "pass-g1", serial_number: "SN-001", wallet_type: "google", status: "active", save_url: "https://pay.google.com/...", google_object_id: "obj-1" },
+        warnings: [],
+      };
+      mockHttp.request.mockResolvedValue(dualResponse);
+
+      const params = {
+        template_id: "tpl-1",
+        serial_number: "SN-001",
+        data: { name: "John" },
+        wallet_type: "both" as const,
+      };
+      const result = await passes.generate(params);
+
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "POST",
+        path: "/generate-pass",
+        body: params,
+      });
+      expect(result).toEqual(dualResponse);
+    });
   });
 
   describe("list", () => {
@@ -107,6 +159,17 @@ describe("Passes", () => {
     it("sends GET /manage-passes with query params", async () => {
       mockHttp.request.mockResolvedValue([]);
       const params = { status: "active" as const, limit: 10 };
+      await passes.list(params);
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "GET",
+        path: "/manage-passes",
+        query: params,
+      });
+    });
+
+    it("sends GET /manage-passes with wallet_type filter", async () => {
+      mockHttp.request.mockResolvedValue([]);
+      const params = { wallet_type: "google" as const, limit: 10 };
       await passes.list(params);
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "GET",
@@ -187,6 +250,17 @@ describe("Passes", () => {
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "GET",
         path: "/manage-passes/serial/SN-001",
+        query: undefined,
+      });
+    });
+
+    it("passes wallet_type query param", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", serial_number: "SN-001" });
+      await passes.getBySerial("SN-001", { wallet_type: "google" });
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "GET",
+        path: "/manage-passes/serial/SN-001",
+        query: { wallet_type: "google" },
       });
     });
   });
@@ -200,6 +274,19 @@ describe("Passes", () => {
         method: "PATCH",
         path: "/manage-passes/serial/SN-001",
         body: params,
+        query: undefined,
+      });
+    });
+
+    it("passes wallet_type query param", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", status: "active" });
+      const params = { data: { name: "Updated" } };
+      await passes.updateBySerial("SN-001", params, { wallet_type: "google" });
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "PATCH",
+        path: "/manage-passes/serial/SN-001",
+        body: params,
+        query: { wallet_type: "google" },
       });
     });
   });
@@ -219,8 +306,19 @@ describe("Passes", () => {
       expect(mockHttp.request).toHaveBeenCalledWith({
         method: "POST",
         path: "/manage-passes/serial/SN-001/void",
+        query: undefined,
       });
       expect(result.status).toBe("invalidated");
+    });
+
+    it("passes wallet_type query param", async () => {
+      mockHttp.request.mockResolvedValue({ id: "pass-1", status: "invalidated" });
+      await passes.voidBySerial("SN-001", { wallet_type: "google" });
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "POST",
+        path: "/manage-passes/serial/SN-001/void",
+        query: { wallet_type: "google" },
+      });
     });
   });
 
@@ -233,8 +331,21 @@ describe("Passes", () => {
         method: "GET",
         path: "/manage-passes/serial/SN-001/download",
         rawResponse: true,
+        query: undefined,
       });
       expect(result).toBe(body);
+    });
+
+    it("passes wallet_type query param", async () => {
+      const body = new Uint8Array([1, 2, 3]);
+      mockHttp.request.mockResolvedValue({ status: 200, headers: new Headers(), body });
+      await passes.downloadBySerial("SN-001", { wallet_type: "google" });
+      expect(mockHttp.request).toHaveBeenCalledWith({
+        method: "GET",
+        path: "/manage-passes/serial/SN-001/download",
+        rawResponse: true,
+        query: { wallet_type: "google" },
+      });
     });
   });
 });

@@ -9,27 +9,9 @@ export type PassStyle =
 
 export type PassStatus = "active" | "invalidated" | "expired";
 
-export type ImagePurpose =
-  | "icon"
-  | "icon_2x"
-  | "icon_3x"
-  | "logo"
-  | "logo_2x"
-  | "logo_3x"
-  | "thumbnail"
-  | "thumbnail_2x"
-  | "strip"
-  | "strip_2x"
-  | "background"
-  | "background_2x"
-  | "footer"
-  | "footer_2x";
+export type WalletType = "apple" | "google";
 
-export type CertType = "signer_cert" | "signer_key" | "wwdr";
-
-export type KeyType = "secret" | "publishable";
-
-export type OrgRole = "owner" | "admin" | "editor" | "viewer";
+export type GenerateWalletType = "apple" | "google" | "both";
 
 export type EventType =
   | "pass.created"
@@ -68,116 +50,9 @@ export interface Pass {
   last_updated_at: string | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface Template {
-  id: string;
-  organization_id: string;
-  app_id: string;
-  name: string;
-  description: string | null;
-  pass_style: PassStyle;
-  structure: Record<string, unknown>;
-  field_schema: Record<string, unknown> | null;
-  is_published: boolean;
-  is_archived: boolean;
-  icon_image_id: string | null;
-  logo_image_id: string | null;
-  strip_image_id: string | null;
-  thumbnail_image_id: string | null;
-  background_image_id: string | null;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Image {
-  id: string;
-  organization_id: string;
-  app_id: string;
-  purpose: ImagePurpose;
-  mime_type: string;
-  size_bytes: number;
-  width: number | null;
-  height: number | null;
-  storage_path: string;
-  preview_url: string;
-  uploaded_at: string;
-}
-
-export interface Certificate {
-  id: string;
-  cert_type: CertType;
-  is_active: boolean;
-  cert_hash: string;
-  common_name: string | null;
-  valid_from: string | null;
-  valid_until: string | null;
-  created_at: string;
-}
-
-export interface Organization {
-  id: string;
-  name: string;
-  slug: string | null;
-  apns_key_id: string | null;
-  billing_plan: string | null;
-  monthly_pass_limit: number | null;
-  features: Record<string, unknown> | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface App {
-  id: string;
-  organization_id: string;
-  name: string;
-  apple_team_id: string | null;
-  pass_type_identifier: string | null;
-  is_active: boolean;
-  validation_webhook_url: string | null;
-  webhook_url: string | null;
-  /** @remarks This is a secret — do not log. */
-  webhook_secret: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ApiKey {
-  id: string;
-  name: string;
-  key_type: KeyType;
-  key_prefix: string;
-  scopes: string[];
-  expires_at: string | null;
-  is_active: boolean;
-  last_used_at: string | null;
-  created_at: string;
-}
-
-export interface ApiKeyCreated extends ApiKey {
-  raw_key: string;
-  message: string;
-}
-
-export interface Member {
-  id: string;
-  user_id: string;
-  email: string;
-  role: OrgRole;
-  created_at: string;
-}
-
-export type InvitationStatus = "pending" | "accepted" | "expired" | "revoked";
-
-export interface Invitation {
-  id: string;
-  email: string;
-  role: "admin" | "editor" | "viewer";
-  status: InvitationStatus;
-  expires_at: string;
-  created_at: string;
+  wallet_type: WalletType;
+  google_save_url: string | null;
+  google_object_id: string | null;
 }
 
 export interface WebhookEvent {
@@ -204,6 +79,7 @@ export interface GeneratePassRequest {
   locations?: Location[];
   relevant_date?: string;
   max_distance?: number;
+  wallet_type?: GenerateWalletType;
 }
 
 export interface ListPassesParams {
@@ -215,6 +91,7 @@ export interface ListPassesParams {
   created_before?: string;
   limit?: number;
   offset?: number;
+  wallet_type?: WalletType;
 }
 
 export interface UpdatePassRequest {
@@ -226,51 +103,6 @@ export interface UpdatePassRequest {
   expires_at?: string | null;
 }
 
-export interface CreateTemplateRequest {
-  name: string;
-  pass_style: PassStyle;
-  structure: Record<string, unknown>;
-  description?: string;
-  field_schema?: Record<string, unknown>;
-  icon_image_id?: string;
-  logo_image_id?: string;
-  strip_image_id?: string;
-  thumbnail_image_id?: string;
-  background_image_id?: string;
-}
-
-export interface UpdateTemplateRequest {
-  name?: string;
-  description?: string;
-  pass_style?: PassStyle;
-  structure?: Record<string, unknown>;
-  field_schema?: Record<string, unknown>;
-  icon_image_id?: string | null;
-  logo_image_id?: string | null;
-  strip_image_id?: string | null;
-  thumbnail_image_id?: string | null;
-  background_image_id?: string | null;
-}
-
-export interface CreateApiKeyRequest {
-  name: string;
-  key_type: KeyType;
-}
-
-export interface InviteMemberRequest {
-  email: string;
-  role: "admin" | "editor" | "viewer";
-}
-
-export interface ChangeRoleRequest {
-  role: "admin" | "editor" | "viewer";
-}
-
-export interface ChangeRoleResponse {
-  id: string;
-  role: "admin" | "editor" | "viewer";
-}
-
 export interface ListWebhookEventsParams {
   event_type?: EventType;
   delivery_status?: DeliveryStatus;
@@ -278,52 +110,8 @@ export interface ListWebhookEventsParams {
   offset?: number;
 }
 
-export interface CreateAppRequest {
-  name?: string;
-}
-
-export interface UpdateAppRequest {
-  name?: string;
-  apple_team_id?: string;
-  pass_type_identifier?: string;
-  validation_webhook_url?: string | null;
-  webhook_url?: string | null;
-  regenerate_webhook_secret?: boolean;
-}
-
-export interface UpdateOrgRequest {
-  name?: string;
-  slug?: string;
-  apns_key_id?: string;
-  apns_key_p8?: string;
-}
-
-export interface UploadImageRequest {
-  purpose: ImagePurpose;
-  filename: string;
-  data: string;
-}
-
-export interface ListTemplatesParams {
-  archived?: boolean;
-}
-
-export interface DeleteTemplateParams {
-  permanent?: boolean;
-}
-
-export interface UploadCertificateRequest {
-  cert_type: CertType;
-  cert_data: string;
-}
-
-export interface UploadP12Request {
-  p12_data: string;
-  password?: string;
-}
-
-export interface AcceptInvitationRequest {
-  token: string;
+export interface WalletTypeOptions {
+  wallet_type?: WalletType;
 }
 
 // ── Response Types ──
@@ -334,12 +122,42 @@ export interface GeneratePassResponse {
   existed: boolean;
 }
 
+export interface GoogleGenerateResponse {
+  id: string;
+  serial_number: string;
+  wallet_type: "google";
+  save_url: string;
+  google_object_id: string;
+  status: string;
+  external_id: string | null;
+}
+
+export interface DualGenerateResponse {
+  apple: {
+    id: string;
+    serial_number: string;
+    wallet_type: "apple";
+    status: string;
+    download_url: string;
+  } | null;
+  google: {
+    id: string;
+    serial_number: string;
+    wallet_type: "google";
+    status: string;
+    save_url: string;
+    google_object_id: string;
+  } | null;
+  warnings: string[];
+}
+
 export interface UpdatePassResponse {
   id: string;
   status: PassStatus;
   devices_notified: number;
   updated_at: string;
   expires_at: string | null;
+  wallet_type: WalletType;
 }
 
 export interface VoidPassResponse {
@@ -353,72 +171,19 @@ export interface VoidPassResponse {
   warning?: string;
 }
 
-export interface UpdateAppResponse extends App {
-  /** @remarks This is a secret — do not log. */
-  webhook_secret_raw?: string;
+export interface ShareToken {
+  share_token: string;
+  share_url: string;
 }
 
-export interface RevokeKeyResponse {
-  id: string;
-  is_active: false;
-  message: string;
+export interface SharePassMetadata {
+  serial_number: string;
+  status: PassStatus;
+  has_apple: boolean;
+  has_google: boolean;
+  google_save_url: string | null;
+  template_name: string;
+  pass_style: string;
+  app_name: string;
+  org_name: string;
 }
-
-export interface AcceptInvitationResponse {
-  organization_id: string;
-  user_id: string;
-  role: OrgRole;
-}
-
-export interface RevokeInvitationResponse {
-  id: string;
-  status: "revoked";
-}
-
-export interface TestWebhookResponse {
-  webhook_url: string;
-  success: boolean;
-  approved: boolean;
-  reason: string;
-  status_code: number;
-  duration_ms: number;
-}
-
-export interface UploadP12Response {
-  message: string;
-  certificates: Certificate[];
-}
-
-export interface DeleteAppResponse {
-  id: string;
-  is_active: boolean;
-  message: string;
-}
-
-export interface DeleteKeyResponse {
-  id: string;
-  message: string;
-}
-
-export interface RemoveMemberResponse {
-  id: string;
-  removed: boolean;
-}
-
-export interface DeleteTemplateResponse {
-  success: boolean;
-}
-
-export interface DeleteImageResponse {
-  success: boolean;
-}
-
-export interface DeleteCertificateResponse {
-  success: boolean;
-}
-
-export interface InviteMemberResponse extends Invitation {
-  accept_url: string;
-  email_sent: boolean;
-}
-
