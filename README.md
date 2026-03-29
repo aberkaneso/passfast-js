@@ -1,6 +1,6 @@
 # @passfast/sdk
 
-Official TypeScript SDK for the [PassFast](https://passfa.st) Apple Wallet Pass platform.
+Official TypeScript SDK for the [PassFast](https://passfa.st) Apple Wallet & Google Wallet Pass platform.
 
 - Zero dependencies — uses `globalThis.fetch`
 - Works in **Node.js 18+**, **Deno**, **Bun**, and **Supabase Edge Functions**
@@ -26,7 +26,7 @@ import { PassFast } from "@passfast/sdk";
 
 const pf = new PassFast("sk_live_...");
 
-// Generate a pass
+// Generate an Apple Wallet pass
 const { passId, pkpassData } = await pf.passes.generate({
   template_id: "tmpl_...",
   serial_number: "MBR-001",
@@ -39,6 +39,7 @@ const passes = await pf.passes.list({ status: "active", limit: 10 });
 // Update a pass (triggers push notification)
 await pf.passes.update(passId, {
   data: { points: "1500" },
+  push_update: true,
 });
 ```
 
@@ -46,7 +47,6 @@ await pf.passes.update(passId, {
 
 ```typescript
 const pf = new PassFast("sk_live_...", {
-  orgId: "org_...",   // required for JWT auth
   appId: "app_...",   // required if org has multiple apps
   timeout: 15_000,    // request timeout in ms (default: 30000)
 });
@@ -57,110 +57,57 @@ const pf = new PassFast("sk_live_...", {
 ### Passes
 
 ```typescript
-// Generate a .pkpass binary
+// Generate an Apple Wallet pass (.pkpass binary)
 const { passId, pkpassData, existed } = await pf.passes.generate({
   template_id: "...",
   serial_number: "MBR-001",
   data: { name: "Jane Doe" },
-  get_or_create: true, // idempotent — returns existing if data matches
+  get_or_create: true,
 });
 
-// Download .pkpass binary
+// Generate a Google Wallet pass
+const { id, save_url } = await pf.passes.generate({
+  template_id: "...",
+  serial_number: "MBR-001",
+  data: { name: "Jane Doe" },
+  wallet_type: "google",
+});
+
+// Generate both Apple and Google passes at once
+const { apple, google, warnings } = await pf.passes.generate({
+  template_id: "...",
+  serial_number: "MBR-001",
+  data: { name: "Jane Doe" },
+  wallet_type: "both",
+});
+
+// List passes (with optional wallet_type filter)
+const passes = await pf.passes.list({ status: "active", wallet_type: "apple" });
+
+// Get, download, update, void by ID
+const pass = await pf.passes.get(passId);
 const binary = await pf.passes.download(passId);
+await pf.passes.update(passId, { data: { points: "2000" }, push_update: true });
+await pf.passes.void(passId);
 
-// Update pass data
-const { pass, push_sent } = await pf.passes.update(passId, {
-  data: { points: "2000" },
-});
-
-// Void a pass
-const { pass: voided } = await pf.passes.void(passId);
+// Operations by serial number (with optional wallet_type)
+const pass = await pf.passes.getBySerial("MBR-001", { wallet_type: "google" });
+await pf.passes.updateBySerial("MBR-001", { data: { points: "2000" } });
+await pf.passes.voidBySerial("MBR-001");
+const binary = await pf.passes.downloadBySerial("MBR-001");
 ```
 
-### Templates
+### Pass Sharing
 
 ```typescript
-const template = await pf.templates.create({
-  name: "Loyalty Card",
-  pass_style: "storeCard",
-  structure: { /* pass.json structure */ },
-  field_schema: { /* validation schema */ },
-});
+// Create a share token for public distribution
+const { share_token, share_url } = await pf.passSharing.createShareToken(passId);
 
-await pf.templates.publish(template.id);
+// Get public metadata for a shared pass (no auth required)
+const metadata = await pf.passSharing.getMetadata(share_token);
 
-const templates = await pf.templates.list();
-```
-
-### Images
-
-```typescript
-const form = new FormData();
-form.append("file", fileBlob, "icon.png");
-form.append("image_type", "icon");
-const image = await pf.images.upload(form);
-
-const images = await pf.images.list();
-await pf.images.delete(image.id);
-```
-
-### Certificates
-
-```typescript
-const form = new FormData();
-form.append("file", certBlob, "signer.pem");
-form.append("cert_type", "signer_cert");
-const cert = await pf.certificates.upload(form);
-```
-
-### Organization & Apps
-
-```typescript
-const org = await pf.organization.get();
-await pf.organization.update({ name: "New Name" });
-
-const apps = await pf.organization.listApps();
-const app = await pf.organization.createApp({
-  name: "My App",
-  apple_team_id: "TEAMID",
-  pass_type_identifier: "pass.com.example",
-});
-
-// Regenerate webhook secret
-const updated = await pf.organization.updateApp(app.id, {
-  regenerate_webhook_secret: true,
-});
-console.log(updated.webhook_secret_raw); // shown once
-
-// Test validation webhook
-await pf.organization.testWebhook();
-```
-
-### API Keys
-
-```typescript
-const { raw_key, ...key } = await pf.apiKeys.create({
-  name: "Backend Key",
-  key_type: "secret",
-});
-console.log(raw_key); // shown once
-
-const keys = await pf.apiKeys.list();
-await pf.apiKeys.revoke(key.id);
-```
-
-### Members
-
-```typescript
-const { members, invitations } = await pf.members.list();
-
-await pf.members.invite({
-  email: "dev@example.com",
-  role: "editor",
-});
-
-await pf.members.changeRole(userId, { role: "admin" });
-await pf.members.remove(userId);
+// Download shared .pkpass (no auth required)
+const binary = await pf.passSharing.download(share_token);
 ```
 
 ### Webhook Events
