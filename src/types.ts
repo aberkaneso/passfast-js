@@ -23,6 +23,31 @@ export type EventType =
 
 export type DeliveryStatus = "pending" | "delivered" | "failed";
 
+export type GooglePassType =
+  | "generic"
+  | "loyalty"
+  | "eventTicket"
+  | "offer"
+  | "flight"
+  | "transit"
+  | "giftCard";
+
+export type ImagePurpose =
+  | "icon"
+  | "icon_2x"
+  | "icon_3x"
+  | "logo"
+  | "logo_2x"
+  | "logo_3x"
+  | "thumbnail"
+  | "thumbnail_2x"
+  | "strip"
+  | "strip_2x"
+  | "background"
+  | "background_2x"
+  | "footer"
+  | "footer_2x";
+
 // ── Models ──
 
 export interface Location {
@@ -53,6 +78,46 @@ export interface Pass {
   wallet_type: WalletType;
   google_save_url: string | null;
   google_object_id: string | null;
+}
+
+export interface Template {
+  id: string;
+  organization_id: string;
+  app_id: string;
+  name: string;
+  description: string | null;
+  pass_style: PassStyle;
+  google_pass_type: GooglePassType | null;
+  structure: Record<string, unknown>;
+  field_schema: Record<string, unknown> | null;
+  is_published: boolean;
+  is_archived: boolean;
+  icon_image_id: string | null;
+  logo_image_id: string | null;
+  google_logo_image_id: string | null;
+  google_wide_logo_image_id: string | null;
+  strip_image_id: string | null;
+  thumbnail_image_id: string | null;
+  background_image_id: string | null;
+  wallet_types: WalletType[];
+  google_class_id: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Image {
+  id: string;
+  organization_id: string;
+  app_id: string;
+  purpose: ImagePurpose;
+  storage_path: string;
+  mime_type: string;
+  size_bytes: number;
+  width: number | null;
+  height: number | null;
+  preview_url: string;
+  uploaded_at: string;
 }
 
 export interface WebhookEvent {
@@ -114,12 +179,66 @@ export interface WalletTypeOptions {
   wallet_type?: WalletType;
 }
 
+export interface CreateTemplateRequest {
+  name: string;
+  pass_style: PassStyle;
+  structure: Record<string, unknown>;
+  description?: string;
+  google_pass_type?: GooglePassType;
+  field_schema?: Record<string, unknown>;
+  wallet_types?: WalletType[];
+  icon_image_id?: string;
+  logo_image_id?: string;
+  google_logo_image_id?: string;
+  google_wide_logo_image_id?: string;
+  strip_image_id?: string;
+  thumbnail_image_id?: string;
+  background_image_id?: string;
+}
+
+export interface UpdateTemplateRequest {
+  name?: string;
+  description?: string;
+  pass_style?: PassStyle;
+  google_pass_type?: GooglePassType | null;
+  structure?: Record<string, unknown>;
+  field_schema?: Record<string, unknown>;
+  wallet_types?: WalletType[];
+  icon_image_id?: string | null;
+  logo_image_id?: string | null;
+  google_logo_image_id?: string | null;
+  google_wide_logo_image_id?: string | null;
+  strip_image_id?: string | null;
+  thumbnail_image_id?: string | null;
+  background_image_id?: string | null;
+}
+
+export interface ListTemplatesParams {
+  archived?: boolean;
+}
+
+export interface DeleteTemplateParams {
+  permanent?: boolean;
+}
+
+export interface UploadImageRequest {
+  purpose: ImagePurpose;
+  file: Blob | Uint8Array;
+  /** Filename used in the multipart form. Defaults to "image.png". */
+  filename?: string;
+}
+
 // ── Response Types ──
 
 export interface GeneratePassResponse {
   passId: string;
   pkpassData: Uint8Array;
   existed: boolean;
+  /**
+   * Non-fatal warnings from Apple single-wallet generation (e.g. icon fallback,
+   * truncated field group). Parsed from the `X-Pass-Warnings` response header.
+   */
+  warnings?: string[];
 }
 
 export interface GoogleGenerateResponse {
@@ -174,6 +293,20 @@ export interface VoidPassResponse {
 export interface ShareToken {
   share_token: string;
   share_url: string;
+}
+
+export interface DeleteTemplateResponse {
+  success: boolean;
+}
+
+export interface UploadImageResponse {
+  id: string;
+  purpose: ImagePurpose;
+  storage_path: string;
+}
+
+export interface DeleteImageResponse {
+  success: boolean;
 }
 
 export interface SharePassMetadata {

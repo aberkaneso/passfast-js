@@ -9,4 +9,7 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   target: "es2020",
+  outExtension({ format }) {
+    return { js: format === "cjs" ? ".cjs" : ".mjs" };
+  },
 });

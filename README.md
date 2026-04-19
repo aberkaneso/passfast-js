@@ -120,6 +120,50 @@ const events = await pf.webhookEvents.list({
 });
 ```
 
+### Templates
+
+```typescript
+// Create a draft template
+const template = await pf.templates.create({
+  name: "Loyalty Card",
+  pass_style: "storeCard",
+  structure: { primaryFields: [/* ... */] },
+  wallet_types: ["apple", "google"],
+  google_pass_type: "loyalty",
+  icon_image_id: "img_...",
+});
+
+// List (non-archived by default)
+const all = await pf.templates.list();
+const archived = await pf.templates.list({ archived: true });
+
+// Get, update, delete
+const t = await pf.templates.get(template.id);
+await pf.templates.update(template.id, { name: "Loyalty Card v2" });
+await pf.templates.delete(template.id);                       // soft delete (archive)
+await pf.templates.delete(template.id, { permanent: true });  // hard delete
+
+// Publish so passes can be generated from it
+await pf.templates.publish(template.id);
+```
+
+### Images
+
+```typescript
+// Upload a PNG (multipart). Accepts Blob or Uint8Array.
+const fs = await import("node:fs/promises");
+const bytes = await fs.readFile("./icon.png");
+const { id } = await pf.images.upload({
+  purpose: "icon",
+  file: bytes,
+  filename: "icon.png",
+});
+
+// List and delete
+const images = await pf.images.list();
+await pf.images.delete(id);
+```
+
 ## Error Handling
 
 All errors extend `PassFastError` with `status`, `code`, and optional `details`.

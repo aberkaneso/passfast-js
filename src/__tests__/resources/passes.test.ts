@@ -73,6 +73,75 @@ describe("Passes", () => {
       expect(result.passId).toBe("pass-3");
     });
 
+    it("parses X-Pass-Warnings header into warnings[]", async () => {
+      const headers = new Headers({
+        "X-Pass-Id": "pass-w1",
+        "X-Pass-Existed": "false",
+        "X-Pass-Warnings": JSON.stringify([
+          "No icon image uploaded; using 29×29 grey fallback.",
+          "Truncated auxiliaryFields to 4 (Apple cap).",
+        ]),
+      });
+      mockHttp.request.mockResolvedValue({
+        status: 201,
+        headers,
+        body: new Uint8Array([7, 8, 9]),
+      });
+
+      const result = await passes.generate({
+        template_id: "tpl-1",
+        serial_number: "SN-W1",
+        data: {},
+      });
+
+      expect(result.warnings).toEqual([
+        "No icon image uploaded; using 29×29 grey fallback.",
+        "Truncated auxiliaryFields to 4 (Apple cap).",
+      ]);
+    });
+
+    it("leaves warnings undefined when header is absent", async () => {
+      const headers = new Headers({
+        "X-Pass-Id": "pass-w2",
+        "X-Pass-Existed": "false",
+      });
+      mockHttp.request.mockResolvedValue({
+        status: 201,
+        headers,
+        body: new Uint8Array(),
+      });
+
+      const result = await passes.generate({
+        template_id: "tpl-1",
+        serial_number: "SN-W2",
+        data: {},
+      });
+
+      expect(result.warnings).toBeUndefined();
+    });
+
+    it("ignores malformed X-Pass-Warnings JSON", async () => {
+      const headers = new Headers({
+        "X-Pass-Id": "pass-w3",
+        "X-Pass-Existed": "false",
+        "X-Pass-Warnings": "{not valid json",
+      });
+      mockHttp.request.mockResolvedValue({
+        status: 201,
+        headers,
+        body: new Uint8Array(),
+      });
+
+      const result = await passes.generate({
+        template_id: "tpl-1",
+        serial_number: "SN-W3",
+        data: {},
+      });
+
+      expect(result.warnings).toBeUndefined();
+      expect(result.passId).toBe("pass-w3");
+    });
+
     it("sets existed=true when header says so", async () => {
       const headers = new Headers({
         "X-Pass-Id": "pass-2",

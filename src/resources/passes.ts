@@ -39,10 +39,22 @@ export class Passes {
       rawResponse: true,
     });
 
+    const warningsHeader = res.headers.get("X-Pass-Warnings");
+    let warnings: string[] | undefined;
+    if (warningsHeader) {
+      try {
+        const parsed = JSON.parse(warningsHeader);
+        if (Array.isArray(parsed)) warnings = parsed;
+      } catch {
+        // Malformed header — ignore rather than crash the call.
+      }
+    }
+
     return {
       passId: res.headers.get("X-Pass-Id")!,
       pkpassData: res.body,
       existed: res.headers.get("X-Pass-Existed") === "true",
+      warnings,
     };
   }
 
