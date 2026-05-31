@@ -159,10 +159,18 @@ const { id } = await pf.images.upload({
   filename: "icon.png",
 });
 
-// List and delete
+// List images
 const images = await pf.images.list();
-await pf.images.delete(id);
+
+// Check what references an image before deleting
+const usage = await pf.images.usage(id);
+if (usage.safe_to_delete) {
+  await pf.images.delete(id);
+}
 ```
+
+> Tip: pass a `strip_image_id` to `pf.passes.generate(...)` or `pf.passes.update(...)`
+> to override the strip/hero image for a single pass.
 
 ## Error Handling
 

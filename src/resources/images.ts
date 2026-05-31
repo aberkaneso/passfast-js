@@ -1,6 +1,7 @@
 import type { HttpClient } from "../http-client.js";
 import type {
   Image,
+  ImageUsage,
   UploadImageRequest,
   UploadImageResponse,
   DeleteImageResponse,
@@ -35,7 +36,22 @@ export class Images {
     });
   }
 
-  /** Delete an image. Fails if the image is referenced by a template. */
+  /**
+   * Report how an image is referenced across templates and passes.
+   * Useful before {@link delete} to check the blast radius (`safe_to_delete`).
+   */
+  async usage(imageId: string): Promise<ImageUsage> {
+    return this.http.request<ImageUsage>({
+      method: "GET",
+      path: `/manage-images/${encodeURIComponent(imageId)}/usage`,
+    });
+  }
+
+  /**
+   * Delete an image. Always succeeds when the image exists — any template column
+   * referencing it is silently cleared, and any per-pass `strip_image_id` override
+   * pointing at it is nullified (reverts to the template's strip).
+   */
   async delete(imageId: string): Promise<DeleteImageResponse> {
     return this.http.request<DeleteImageResponse>({
       method: "DELETE",

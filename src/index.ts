@@ -29,6 +29,8 @@ export type {
   Pass,
   Template,
   Image,
+  ImageUsage,
+  ImageUsageTemplateRef,
   WebhookEvent,
   // Request types
   GeneratePassRequest,

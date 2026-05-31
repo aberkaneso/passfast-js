@@ -78,6 +78,8 @@ export interface Pass {
   wallet_type: WalletType;
   google_save_url: string | null;
   google_object_id: string | null;
+  /** Per-pass strip/hero image override. `null` means the template's strip image is used. */
+  strip_image_id: string | null;
 }
 
 export interface Template {
@@ -120,6 +122,23 @@ export interface Image {
   uploaded_at: string;
 }
 
+export interface ImageUsageTemplateRef {
+  template_id: string;
+  template_name: string;
+  /** The template column referencing this image, e.g. "strip_image_id", "icon_image_id". */
+  column: string;
+}
+
+export interface ImageUsage {
+  image_id: string;
+  purpose: ImagePurpose;
+  template_refs: ImageUsageTemplateRef[];
+  /** Number of passes whose per-pass strip_image_id points at this image. */
+  pass_refs_count: number;
+  total_refs: number;
+  safe_to_delete: boolean;
+}
+
 export interface WebhookEvent {
   id: string;
   event_type: EventType;
@@ -145,6 +164,8 @@ export interface GeneratePassRequest {
   relevant_date?: string;
   max_distance?: number;
   wallet_type?: GenerateWalletType;
+  /** Per-pass override for the strip/hero image. Must belong to this app with a `strip` purpose. */
+  strip_image_id?: string | null;
 }
 
 export interface ListPassesParams {
@@ -166,6 +187,11 @@ export interface UpdatePassRequest {
   relevant_date?: string;
   max_distance?: number;
   expires_at?: string | null;
+  /**
+   * Per-pass strip/hero image override. Tri-state: omit to leave unchanged,
+   * `null` to clear (revert to the template's strip), or a uuid to set.
+   */
+  strip_image_id?: string | null;
 }
 
 export interface ListWebhookEventsParams {
